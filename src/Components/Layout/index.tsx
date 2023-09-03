@@ -5,7 +5,7 @@
  */
 import React, { useState, useMemo } from 'react'
 import { DefaultProps } from '@/types'
-import { Box, PaletteMode, CssBaseline, Toolbar, IconButton, Typography, Divider } from '@mui/material'
+import { Box, PaletteMode, CssBaseline, Toolbar, IconButton, Typography, Divider, MenuItem, Menu, Button } from '@mui/material'
 import { Menu as IconMenu, ChevronLeft as IconChevronLeft, ChevronRight as IconChevronRight } from '@mui/icons-material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Settings from './Settings'
@@ -13,7 +13,8 @@ import ColorModeContext from '../ColorMode/ColorModeContext'
 import { storage } from '@/helpers'
 import { DRAWER_OPEN_FLAG_CACHE_KEY, THEME_CACHE_KEY, themeOptions } from '@/constants'
 import { AppBar, Drawer, DrawerHeader } from './Parts'
-import Menu from './Menu'
+import AppMenu from './Menu'
+import { AccountCircle } from '@mui/icons-material'
 
 export default function Layout(props: DefaultProps) {
   const cacheMode = storage.get(THEME_CACHE_KEY, 'light')
@@ -43,6 +44,8 @@ export default function Layout(props: DefaultProps) {
 
   const openFlag = storage.get(DRAWER_OPEN_FLAG_CACHE_KEY, false)
   const [open, setOpen] = useState(openFlag)
+  const [auth, setAuth] = React.useState(false)
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -52,6 +55,27 @@ export default function Layout(props: DefaultProps) {
   const handleDrawerClose = () => {
     setOpen(false)
     storage.set(DRAWER_OPEN_FLAG_CACHE_KEY, false)
+  }
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setAuth(event.target.checked)
+  }
+
+  const handleLogin = () => {
+    setAuth(true)
+  }
+
+  const handleLogout = () => {
+    setAuth(false)
+    setAnchorEl(null)
+  }
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
   }
 
   return (
@@ -72,9 +96,47 @@ export default function Layout(props: DefaultProps) {
                 }}>
                 <IconMenu />
               </IconButton>
-              <Typography variant="h6" noWrap component="div">
-                Mini variant drawer
+              <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+                Project Name
               </Typography>
+              {!auth && (
+                <div>
+                  <Button color="inherit" onClick={handleLogin}>
+                    Login
+                  </Button>
+                </div>
+              )}
+              {auth && (
+                <div>
+                  <IconButton
+                    size="large"
+                    aria-label="account of current user"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    onClick={handleMenu}
+                    color="inherit">
+                    <AccountCircle />
+                  </IconButton>
+                  <Menu
+                    id="menu-appbar"
+                    anchorEl={anchorEl}
+                    anchorOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}>
+                    <MenuItem onClick={handleClose}>Profile</MenuItem>
+                    <MenuItem onClick={handleClose}>My account</MenuItem>
+                    <MenuItem onClick={handleLogout}>Log Out</MenuItem>
+                  </Menu>
+                </div>
+              )}
             </Toolbar>
           </AppBar>
           <Drawer variant="permanent" open={open}>
@@ -84,7 +146,7 @@ export default function Layout(props: DefaultProps) {
               </IconButton>
             </DrawerHeader>
             <Divider />
-            <Menu open={open} />
+            <AppMenu open={open} />
           </Drawer>
           <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <DrawerHeader />

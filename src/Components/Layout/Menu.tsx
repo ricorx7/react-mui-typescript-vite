@@ -13,7 +13,7 @@ interface MenuProps extends DefaultProps {
   open: boolean
 }
 
-export default function Menu(props: MenuProps) {
+export default function AppMenu(props: MenuProps) {
   const history = useHistory()
   const location = useLocation()
   // current path

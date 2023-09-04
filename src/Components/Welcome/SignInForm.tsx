@@ -18,6 +18,8 @@ const REMEMBER_TEXT = 'remember'
 export default function SignInForm() {
   // form submission processing status
   const [isSubmit, setIsSubmit] = useState(false)
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const history = useHistory()
   const location = useLocation()
 
@@ -77,7 +79,8 @@ export default function SignInForm() {
           name="email"
           autoComplete="email"
           autoFocus
-          value="kaneoki1984@gmail.com"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           data-test-id="SignInEmail"
         />
         <TextField
@@ -89,7 +92,8 @@ export default function SignInForm() {
           type="password"
           id="password"
           autoComplete="current-password"
-          value="123456"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           data-test-id="SignInPassword"
         />
         <FormControlLabel

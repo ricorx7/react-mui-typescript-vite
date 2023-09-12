@@ -38,14 +38,23 @@ export function useProvideAuth(): UseAuth {
     }).then((response) => {
       // Wait for the authorization token as the response
       response.json().then((authTokenData) => {
-        // Call the API to get the user data information using the token
-        getUserData(form.email, authTokenData['auth_token'])
+        console.log(authTokenData)
+        if ('auth_token' in authTokenData) {
+          // Call the API to get the user data information using the token
+          getUserData(form.email, authTokenData['auth_token'])
+
+          console.log(user)
+
+          // Return the user data
+          return user
+        } else {
+          console.log('Failed Login')
+          throw new Error('Sign in failed')
+        }
       })
     })
 
-    console.log(user)
-    // Return the user data
-    return user
+    return null
   }
 
   /**
@@ -55,11 +64,11 @@ export function useProvideAuth(): UseAuth {
    * @returns Information from the backend about the user name.
    */
   async function getUserData(username: string, authToken: string) {
-    // Log into the backend giving the email and password
+    // Init values
     const data = {
       email: '',
       username: username,
-      userId: 42,
+      userId: 0,
       token: authToken,
     }
 
@@ -79,6 +88,7 @@ export function useProvideAuth(): UseAuth {
         // Set the user information
         setUser(data)
         console.log(data)
+
         // Store the user information to storage
         storage.set(USER_INFO_CACHE_KEY, data)
       })
@@ -106,4 +116,3 @@ export function useProvideAuth(): UseAuth {
 function userDataResponse(value: any) {
   throw new Error('Function not implemented.')
 }
-

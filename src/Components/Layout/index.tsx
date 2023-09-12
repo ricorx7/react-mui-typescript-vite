@@ -5,7 +5,7 @@
  */
 import React, { useState, useMemo } from 'react'
 import { DefaultProps } from '@/types'
-import { Box, PaletteMode, CssBaseline, Toolbar, IconButton, Typography, Divider, MenuItem, Menu, Button } from '@mui/material'
+import { Box, PaletteMode, CssBaseline, Toolbar, IconButton, Typography, Divider, MenuItem, Menu } from '@mui/material'
 import { Menu as IconMenu, ChevronLeft as IconChevronLeft, ChevronRight as IconChevronRight } from '@mui/icons-material'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Settings from './Settings'
@@ -15,6 +15,7 @@ import { DRAWER_OPEN_FLAG_CACHE_KEY, THEME_CACHE_KEY, themeOptions } from '@/con
 import { AppBar, Drawer, DrawerHeader } from './Parts'
 import AppMenu from './Menu'
 import { AccountCircle } from '@mui/icons-material'
+import { useAuth } from '../Auth'
 
 export default function Layout(props: DefaultProps) {
   const cacheMode = storage.get(THEME_CACHE_KEY, 'light')
@@ -44,8 +45,10 @@ export default function Layout(props: DefaultProps) {
 
   const openFlag = storage.get(DRAWER_OPEN_FLAG_CACHE_KEY, false)
   const [open, setOpen] = useState(openFlag)
-  const [auth, setAuth] = React.useState(false)
+  //const [auth, setAuth] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+
+  const auth = useAuth()
 
   const handleDrawerOpen = () => {
     setOpen(true)
@@ -57,16 +60,13 @@ export default function Layout(props: DefaultProps) {
     storage.set(DRAWER_OPEN_FLAG_CACHE_KEY, false)
   }
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAuth(event.target.checked)
-  }
-
-  const handleLogin = () => {
-    setAuth(true)
-  }
+  //const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //  setAuth(event.target.checked)
+  //}
 
   const handleLogout = () => {
-    setAuth(false)
+    //setAuth(false)
+    auth.signOut()
     setAnchorEl(null)
   }
 
@@ -99,14 +99,7 @@ export default function Layout(props: DefaultProps) {
               <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                 Project Name
               </Typography>
-              {!auth && (
-                <div>
-                  <Button color="inherit" onClick={handleLogin}>
-                    Login
-                  </Button>
-                </div>
-              )}
-              {auth && (
+              {auth.user && (
                 <div>
                   <IconButton
                     size="large"
@@ -131,6 +124,7 @@ export default function Layout(props: DefaultProps) {
                     }}
                     open={Boolean(anchorEl)}
                     onClose={handleClose}>
+                    <MenuItem>{auth.user.username}</MenuItem>
                     <MenuItem onClick={handleClose}>Profile</MenuItem>
                     <MenuItem onClick={handleClose}>My account</MenuItem>
                     <MenuItem onClick={handleLogout}>Log Out</MenuItem>
